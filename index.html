@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Lineuzinho Archenemy</title>
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.min.js" integrity="sha384-IDwe1+LCz02ROU9k972gdyvl+AESN10+x7tBKgc9I5HFtuNz0wWnPclzo6p9vxnk" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+    <script>
+      const gCardNames = [
+        { name: 'A Display of My Dark Power',           ongoing: false },
+        { name: 'All in Good Time',                     ongoing: false },
+        { name: 'All Shall Smolder in My Wake',         ongoing: false },
+        { name: 'Approach My Molten Realm',             ongoing: false },
+        { name: 'Behold the Power of Destruction',      ongoing: false },
+        { name: 'Choose Your Champion',                 ongoing: false },
+        { name: 'Dance, Pathetic Marionette',           ongoing: false },
+        { name: 'Embrace My Diabolical Vision',         ongoing: false },
+        { name: 'Every Hope Shall Vanish',              ongoing: false },
+        { name: 'Every Last Vestige Shall Rot',         ongoing: false },
+        { name: 'Evil Comes to Fruition',               ongoing: false },
+        { name: 'Feed the Machine',                     ongoing: false },
+        { name: 'I Bask in Your Silent Awe',            ongoing: true  },
+        { name: 'I Call on the Ancient Magics',         ongoing: false },
+        { name: 'I Delight in Your Convulsions',        ongoing: false },
+        { name: 'Ignite the Cloneforge!',               ongoing: false },
+        { name: 'I Know All, I See All',                ongoing: true  },
+        { name: 'Into the Earthen Maw',                 ongoing: false },
+        { name: 'Introductions Are in Order',           ongoing: false },
+        { name: 'Know Naught but Fire',                 ongoing: false },
+        { name: 'Look Skyward and Despair',             ongoing: false },
+        { name: 'May Civilization Collapse',            ongoing: false },
+        { name: 'Mortal Flesh Is Weak',                 ongoing: false },
+        { name: 'My Crushing Masterstroke',             ongoing: false },
+        { name: 'My Genius Knows No Bounds',            ongoing: false },
+        { name: 'My Undead Horde Awakens',              ongoing: true  },
+        { name: 'My Wish Is Your Command',              ongoing: false },
+        { name: 'Nature Demands an Offering',           ongoing: false },
+        { name: 'Nature Shields Its Own',               ongoing: true  },
+        { name: 'Nothing Can Stop Me Now',              ongoing: true  },
+        { name: 'Only Blood Ends Your Nightmares',      ongoing: false },
+        { name: 'Realms Befitting My Majesty',          ongoing: false },
+        { name: 'Roots of All Evil',                    ongoing: false },
+        { name: 'Rotted Ones, Lay Siege',               ongoing: false },
+        { name: 'Surrender Your Thoughts',              ongoing: false },
+        { name: 'The Dead Shall Serve',                 ongoing: false },
+        { name: 'The Fate of the Flammable',            ongoing: false },
+        { name: 'The Iron Guardian Stirs',              ongoing: false },
+        { name: 'The Pieces Are Coming Together',       ongoing: false },
+        { name: 'The Very Soil Shall Shake',            ongoing: true  },
+        { name: 'Tooth, Claw, and Tail',                ongoing: false },
+        { name: 'Which of You Burns Brightest',         ongoing: false },
+        { name: 'Your Fate Is Thrice Sealed',           ongoing: false },
+        { name: 'Your Puny Minds Cannot Fathom',        ongoing: false },
+        { name: 'Your Will Is Not Your Own',            ongoing: false },
+        { name: 'promo/Drench The Soil In Their Blood', ongoing: false },
+        { name: 'promo/Imprison This Insolent Wretch',  ongoing: true  },
+        { name: "promo/Perhaps Youve Met My Cohort",    ongoing: false },
+        { name: 'promo/Plots That Span Centuries',      ongoing: false },
+        { name: 'promo/Your Inescapable Doom',          ongoing: true  }
+      ];
+
+      let gDeckCurrentPosition         = 0;
+      let gSelectedCards               = [];
+      let gShuffledSelectedCards       = [];
+      let gActivedOnGoingSelectedCards = [];
+
+
+      function initializeCards() {
+        createCheckboxes()
+        previewCard(gCardNames[0]["name"])
+      }
+
+      function createCheckboxes(){
+        for (cardPosition = 0; cardPosition < gCardNames.length; cardPosition++) {
+          let cardName = gCardNames[cardPosition]['name']
+
+          let checkboxCardTemplate = `<div class='checkbox-card'>
+                                        <label onmouseover='previewCard("${cardName}")'>
+                                          <input type='checkbox' class='ckeckbox' name='card-checkbox' data-card-checkbox='' value='${cardPosition}' checked/>
+                                          ${cardName}
+                                        </label>
+                                        <a href='#!' onclick='previewCard("${cardName}")'>Visualizar</a>
+                                      </div>`
+
+          $("[data-card-checkboxes]").append(checkboxCardTemplate)
+        }
+      }
+
+      function shuffleCards(cards){
+        let copyCards = cards.slice()
+
+        for(var j, x, i = copyCards.length; i; j = parseInt(Math.random() * i), x = copyCards[--i], copyCards[i] = copyCards[j], copyCards[j] = x);
+        return copyCards;
+      };
+
+      function startDeck(){
+        selectedCardPositions = $("[data-card-checkbox]:checked").map(function(_, el) {
+                                  return $(el).val();
+                                }).get()
+
+        gSelectedCards = selectedCardPositions.map(function(el, _) { return gCardNames[el] })
+
+        gShuffledSelectedCards = shuffleCards(gSelectedCards)
+
+                                
+        console.log("gShuffledSelectedCards")
+        console.log(gShuffledSelectedCards)
+
+        hideCheckboxesContainer()
+        showDeckContainer()
+        showDeckCard(gShuffledSelectedCards[gDeckCurrentPosition]["name"])
+        removeOngoingCardFromSelectedCards()
+      }
+
+      function reshuffleSelectedDeck() {
+        gShuffledSelectedCards = shuffleCards(gSelectedCards)
+
+        console.log("gShuffledSelectedCards")
+        console.log(gShuffledSelectedCards)
+        console.log("gSelectedCards")
+        console.log(gSelectedCards)
+
+        gDeckCurrentPosition   = 0
+      }
+
+      function hideCheckboxesContainer() {
+        $("[data-card-checkboxes-containter]").addClass("d-none")
+      }
+
+      function showDeckContainer() {
+        $("[data-deck-container]").removeClass("d-none")
+      }
+
+      function previewCard(cardName) {
+        $("[data-card-preview]").attr("src", `imagens/cards/${cardName}.jpg`)
+      }
+
+      function showDeckCard(cardName) {
+        $('[data-deck-card-image]').attr("src", `imagens/cards/${cardName}.jpg`)
+      }
+
+      function nextCard() {
+        gDeckCurrentPosition += 1
+        console.log(gDeckCurrentPosition)
+        console.log(gDeckCurrentPosition >= gShuffledSelectedCards.length)
+
+        if (gDeckCurrentPosition >= gShuffledSelectedCards.length) {
+          reshuffleSelectedDeck()
+        }
+
+        showDeckCard(gShuffledSelectedCards[gDeckCurrentPosition]["name"])
+        removeOngoingCardFromSelectedCards()
+      }
+
+      function removeOngoingCardFromSelectedCards() {
+        let currentSelectedCard = gShuffledSelectedCards[gDeckCurrentPosition]
+
+        if (isOnGoingCard(currentSelectedCard)) {
+          let removedSelectedCardIndex = gSelectedCards.findIndex(function(e) { return e.name == currentSelectedCard["name"] })
+
+          gActivedOnGoingSelectedCards.push(currentSelectedCard)
+
+          console.log("gActivedOnGoingSelectedCards")
+          console.log(gActivedOnGoingSelectedCards)
+
+          showOnGoingCard(currentSelectedCard)
+
+          gSelectedCards.splice(removedSelectedCardIndex, 1)
+
+          console.log("gSelectedCards")
+          console.log(gSelectedCards)
+        }
+      }
+
+      function showOnGoingCard(card) {
+        let cardName = card["name"]
+
+        let onGoingCardTemplate = `<div data-ongoing-card-container="${cardName}">
+                                    <img src="imagens/cards/${cardName}.jpg" class="ongoing-card" data-ongoing-card="" />
+                                    <button name="returnOngoingCard" onclick="returnOngoingCardToSelectedCards('${cardName}')">Remover</button>
+                                   </div>`
+
+        $("[data-ongoing-cards-container]").append(onGoingCardTemplate)
+      }
+
+      function returnOngoingCardToSelectedCards(cardName) {
+        let onGoingCard      = gActivedOnGoingSelectedCards.find(function(e) { return e.name == cardName })
+        let onGoingCardIndex = gActivedOnGoingSelectedCards.findIndex(function(e) { return e.name == cardName })
+
+        if (onGoingCard !== undefined) {
+          gActivedOnGoingSelectedCards.splice(onGoingCardIndex, 1)
+
+          console.log("gActivedOnGoingSelectedCards")
+          console.log(gActivedOnGoingSelectedCards)
+
+          $(`[data-ongoing-card-container='${cardName}']`).addClass("d-none")
+          gSelectedCards.push(onGoingCard)
+
+          console.log("gSelectedCards")
+          console.log(gSelectedCards)
+        }
+      }
+
+      function isOnGoingCard(card) {
+        return card["ongoing"] == true
+      }
+
+      function uncheckAll() {
+        $("[data-card-checkbox]").prop("checked", false)
+      }
+
+      function checkAll() {
+        $("[data-card-checkbox]").prop("checked", true)
+      }
+    </script>
+    <style>
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+        margin: auto;
+      }
+      
+      .ckeckbox,
+      label {
+        display: inline-block;
+        cursor: pointer;
+        padding: 5px 0;
+      }
+
+      .card-checkboxes {
+        overflow: scroll;
+        height: 800px;
+      }
+
+      .card-preview {
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body onload="initializeCards()">
+    <div class="d-flex justify-content-center" data-card-checkboxes-containter="">
+      <div class="row position-relative">
+        <div class="col-6">
+          <div class="card-checkboxes" data-card-checkboxes=""></div>
+        </div>
+        <div class="col-6">
+          <div data-card-preview-container="">
+            <img src="#" class="card-preview" data-card-preview="" />
+          </div>
+
+          <button name="startDeck"  class="start-deck-button"  onclick="startDeck()">Iniciar</button>
+          <button name="uncheckAll" class="uncheck-all-button" onclick="uncheckAll()">Limpar tudo</button>
+          <button name="checkAll"   class="check-all-button"   onclick="checkAll()">Selecionar tudo</button>
+        </div>
+      </div>
+    </div>
+
+    <div data-deck-container="" class="d-none">
+      <img src="#" class="deck-card-image" data-deck-card-image="" onclick="nextCard()" />
+
+      <div data-ongoing-cards-container>
+
+      </div>
+    </div>
+  </body>
+</html>
